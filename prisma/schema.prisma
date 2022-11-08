@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              BigInt   @id @default(autoincrement())
+  walletAddress   String   @unique // ==> This can be @id I think. 
+  emailAddress    String?
+  twitterUsername String?
+  discordUsername String?
+  bids            Bid[]
+  settles         Settle[]
+
+  @@index([walletAddress])
+}
+
+model Bid {
+  txHash   String   @id
+  bidder   User     @relation(fields: [bidderId], references: [id])
+  bidderId BigInt
+  amount   Decimal
+  bidTime  DateTime @default(now())
+}
+
+model Settle {
+  txHash     String   @id
+  settler    User     @relation(fields: [settlerId], references: [id])
+  settlerId  BigInt
+  amount     Decimal
+  settleTime DateTime @default(now())
+}
